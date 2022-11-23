@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
 include 'config.php';
 if ($_POST['user_add'] ==1) {
     $name = $_POST['name'];
@@ -10,6 +11,10 @@ if ($_POST['user_add'] ==1) {
     VALUES ('$name','$username','$email','$password','$password_confirmation')";
     $db->query($query);
     // echo $query;exit;
+    if($db->query($query)){ $msg = "Successfully Created"; } else { $msg = "Error creating record. Please contact System Administrator ASAP"; }
+    $link = 'login.php';
+    header( 'Location: '.$link ); exit;
+
 }
 include 'head.php';
 ?>
@@ -54,7 +59,7 @@ include 'head.php';
 		</div>
 	</div>
 </form>
-    </div>
+</div>
 
 
 <?php
