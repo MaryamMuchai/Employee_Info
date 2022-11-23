@@ -3,68 +3,31 @@ error_reporting(E_ERROR | E_PARSE);
 include 'config.php';
 include 'head.php';
 
-if(isset($_GET['clear']) && $_GET['clear'] == 1) {
-    unset($_SESSION['filter']);
-    unset($_SESSION['search']);
-}
-if((isset($_SESSION['filter']) && $_SESSION['filter'] == 1) || (isset($_POST['filter']) && $_POST['filter'] == 1))
-{
-    if($_POST['filter'] == 1) {
-        $_SESSION['filter'] = $_POST['filter'];
-        $_SESSION['search'] = $_POST['search'];
-    }
-}
-if((isset($_SESSION['filter']) && $_SESSION['filter'] == 1)) {
-    if((isset($_SESSION['search']) && $_SESSION['search'] != '')) {
-        $search_terms = explode(' ',$_SESSION['search']);
-        $where_name = "(";
-        foreach($search_terms as $search_term){
-            $where_name .= "`c`.`name` LIKE '%".$search_term."%' AND ";
-        }
-        $where_name = substr($where_name,0,-4);
-        $where_name .= ")";
-        $where .= " AND (`c`.`id` LIKE '%".['search']."%' OR 
-		`c`.`emp_name` LIKE '%".['search']."%' OR 
-		`c`.`emp_dept` LIKE '%".['search']."%' OR 
-		".$where_name." OR 
-		`c`.`emp_salary` LIKE '%".['search']."%' OR 
-		`c`.`doj` LIKE '%".['search']."%' OR 
-		`c`.`emp_address` LIKE '%".['search']."%')";
-    }
-
-    }
-
-    
 ?>
-
+<script>
+    $(document).ready(function(){
+        $("#myInput").on("keyup",function(){
+            var value =$(this).val().toLowerCase();
+            $("#myTable tr").filter(function(){
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+    </script>
 <section class="content">
-<div class="panel panel-default">
-        <div class="panel-heading">
-          Search Form
-        </div>
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="form-group">
-                        <form action="index.php" method="POST" name="searchform" id="searchform" class="form-inline"><input type="hidden" name="filter" value="1">
-                            <div class="form-group"><input name="search" id="search" type="text"  class="form-control input-sm" placeholder="Input search term" value="<?php if((isset($_SESSION['search']) && $_SESSION['search'] != '')) { echo $_SESSION['search']; } ?>" ></div>
-                           
-                            <br /><br /><input type="submit" class="btn" value="Search" />&nbsp;&nbsp;&nbsp;<?php if(isset($_SESSION['filter']) && $_SESSION['filter'] == 1) { ?><a class="btn btn-link" href="index.php?clear=1">Clear Search</a><?php } ?>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 <!-- Default box -->
 <div class="box">
         <div class="box-header with-border">
         <h3 class="box-title" style="text-align:center;">List Employees</h3>
-        <p><a href="add.php"><h3><span class="btn btn-success" style="float:right;"><i class="fa fa-plus fa-lg"></i>Add</span></h3></a></p>
+        <div class="form-group">
+        <input type="text" id="myInput"style="text-align:center;" placeholder="Search Here.." class="form-control">
         </div>
-
+        <p><a href="add.php"><h3><span class="btn btn-success" style="float:right;"><i class="fa fa-plus fa-lg"></i>Add New Record</span></h3></a></p>
+        </div>
+<br>
 <div class="box-body">
+    <div class="">
+        <br>
 <table class="table table-striped">
         <thead>
         <tr>
@@ -78,7 +41,7 @@ if((isset($_SESSION['filter']) && $_SESSION['filter'] == 1)) {
         </tr>
         </thead>
 
-    <tbody>
+    <tbody id ="myTable">
 <?php
 $query = "SELECT * FROM employee WHERE id > 0 AND deleted  = 0 ORDER BY id ASC";
 $result = $db->query($query);
